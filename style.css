@@ -1,0 +1,200 @@
+body {
+    background-color: #f4eede;
+
+    font-family: ".bebas-neue-regular", Bebas Neue, sans-serif;
+
+    margin: 0;
+}
+
+.header {
+    text-align: center;
+    padding: 0px;
+}
+
+a {
+    color: black;
+}
+
+hr {
+    width: 100%;
+    background-color: black;
+    height: 10px;
+}
+
+h1 {
+    color: black;
+    font-size: 45px;
+    text-align: center;
+    padding: 30px;
+}
+
+h2 {
+    color: black;
+    font-size: 32px;
+    text-align: center;
+    padding: 10px;
+}
+
+h3 {
+    color: black;
+    font-size: 32px;
+    text-align: left;
+    padding: 20px;
+}
+
+p {
+    color: black;
+    font-size: 24px;
+    text-align: left;
+    padding: 20px;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+}
+
+.column img {
+    width: 100%;
+    height: auto;
+}
+
+
+/* Clear floats after the columns */
+.row::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #f3e3bb;
+    position: fixed;
+    top: 0;
+    width: 100%;
+}
+
+li {
+    float: left;
+}
+
+li a {
+    display: block;
+    color: white;
+    text-align: left;
+    padding: 18px 25px;
+    text-decoration: none;
+    font-size: 20px;
+}
+
+li a:hover:not(.active) {
+    background-color: #111;
+}
+
+.active {
+    background-color: #4caf50;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.project {
+    flex: 0 1 calc(50% - 20px);
+    /* Each project takes half of the screen minus some padding */
+    display: flex;
+    flex-direction: column;
+
+    margin-bottom: 20px;
+    /* Add margin between project elements */
+}
+
+.project img {
+    max-width: 100%;
+    height: auto;
+}
+
+.project text {
+    padding: 20px;
+}
+
+.reverse {
+    flex-direction: row-reverse;
+    /* Reverse the order of elements in this project */
+}
+
+.text {
+    padding: 20px;
+}
+
+@media screen and (min-width: 769px) {
+    .project {
+        flex-direction: row;
+        /* Display items horizontally on screens wider than 768px */
+        align-items: center;
+        /* Align items vertically */
+    }
+
+    .project img {
+        max-width: 50%;
+        /* Limit the image width to 50% of the container on desktop */
+    }
+
+    .project .text {
+        flex: 1;
+        /* Grow to fill remaining space */
+        padding: 20px;
+    }
+
+    .column img {
+        max-width: 60%;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .project {
+        flex: 1 1 100%;
+        /* Each column takes full width on smaller screens */
+    }
+
+    .column {
+        width: 100%;
+    }
+
+    .column img {
+        width: 100%;
+    }
+
+    .project img {
+        width: 100%;
+    }
+}
+
+.bebas-neue-regular {
+    font-family: "Bebas Neue", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.icons {
+    text-align: center;
+
+    .fa-linkedin,
+    .fa-github,
+    .fa-envelope,
+    .fa-instagram,
+    .fa-x-twitter {
+        color: black;
+    }
+
+    text-decoration: none;
+    font-size: 40px;
+    text-indent: 10px;
+
+}
