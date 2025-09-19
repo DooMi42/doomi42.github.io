@@ -430,7 +430,7 @@ export default function JohannesPortfolio() {
                 <div className="flex items-center gap-2 text-white/80"><Rocket size={18}/> SME Chatbots — Routing / Sales / Support</div>
                 <a className="text-xs inline-flex items-center gap-1 text-white/60 hover:text-white" href="https://mitrox.io/" target="_blank" rel="noreferrer">Mitrox.io <ExternalLink size={14}/></a>
               </div>
-              <p className="text-white/70 leading-relaxed mb-4">Voiceflow + LLMs. Multi-agent architecture (Ohjaaja, Tuki, Myynti). Button-first UX, knowledge base design, and cost control.</p>
+              <p className="text-white/70 leading-relaxed mb-4">Voiceflow + LLMs. Multi-agent architecture (Lead, Support, Sales). Button-first UX, knowledge base design, and cost control.</p>
               <div className="flex flex-wrap gap-2 text-xs text-white/70">
                 <Badge>Voiceflow</Badge><Badge>LLM</Badge><Badge>Zapier</Badge><Badge>Webhooks</Badge>
               </div>
@@ -551,7 +551,7 @@ export default function JohannesPortfolio() {
                 <div className="space-y-2 text-white/80">
                   <a className="flex items-center gap-2 hover:text-white" href="mailto:johannes.hurmerinta@mitrox.io"><Mail size={16} /> johannes.hurmerinta@mitrox.io</a>
                   <a className="flex items-center gap-2 hover:text-white" href="https://github.com/DooMi42"><Github size={16} /> github.com/DooMi42</a>
-                  <a className="flex items-center gap-2 hover:text-white" href="https://linkedin.com/johanneshurmerinta"><Linkedin size={16} /> linkedin.com/in/yourprofile</a>
+                  <a className="flex items-center gap-2 hover:text-white" href="https://linkedin.com/in/johanneshurmerinta"><Linkedin size={16} /> linkedin.com/in/yourprofile</a>
                 </div>
                 <div className="mt-6">
                   <div className="text-white/90 font-medium mb-2">Download</div>
