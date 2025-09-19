@@ -280,7 +280,7 @@ export default function JohannesPortfolio() {
               <div className="flex flex-wrap items-center gap-3">
                 <Button href="#projects">Explore Projects <ArrowRight size={16}/></Button>
                 <Button variant="ghost" href="https://github.com/DooMi42"><Github size={16}/> GitHub</Button>
-                <Button variant="ghost" href="https://www.linkedin.com/in/johannes-hurmerinta/"><Linkedin size={16}/> LinkedIn</Button>
+                <Button variant="ghost" href="https://www.linkedin.com/in/johanneshurmerinta/"><Linkedin size={16}/> LinkedIn</Button>
               </div>
               <div className="mt-4 grid w-full grid-cols-2 gap-3 md:w-auto md:grid-cols-4">
                 {[
@@ -390,7 +390,7 @@ export default function JohannesPortfolio() {
                 <div className="flex items-center gap-2 text-white/80"><Gamepad2 size={18}/> Unannounced Game - Please Be Patient Oy</div>
                 <a className="text-xs inline-flex items-center gap-1 text-white/60 hover:text-white" href="https://discord.gg/xktm4R6myU" target="_blank" rel="noreferrer">Discord <ExternalLink size={14}/></a>
               </div>
-              <p className="text-white/70 leading-relaxed mb-4">Unity + MoreMountains TopDown Engine. Custom AI brains (Idle/Move/Melee), status effects, and tuned combat feel.</p>
+              <p className="text-white/70 leading-relaxed mb-4">C#, Unity + MoreMountains TopDown Engine. Custom Enemy AI and tuned combat feel. Prototyping new features.</p>
               <div className="flex flex-wrap gap-2 text-xs text-white/70">
                 <Badge>Unity</Badge><Badge>C#</Badge><Badge>AI/Gameplay</Badge><Badge>Animations</Badge><Badge>Enemy AI</Badge>
               </div>
