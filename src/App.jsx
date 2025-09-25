@@ -551,7 +551,7 @@ export default function JohannesPortfolio() {
                 <div className="space-y-2 text-white/80">
                   <a className="flex items-center gap-2 hover:text-white" href="mailto:johannes.hurmerinta@mitrox.io"><Mail size={16} /> johannes.hurmerinta@mitrox.io</a>
                   <a className="flex items-center gap-2 hover:text-white" href="https://github.com/DooMi42"><Github size={16} /> github.com/DooMi42</a>
-                  <a className="flex items-center gap-2 hover:text-white" href="https://linkedin.com/in/johanneshurmerinta"><Linkedin size={16} /> linkedin.com/in/yourprofile</a>
+                  <a className="flex items-center gap-2 hover:text-white" href="https://linkedin.com/in/johanneshurmerinta"><Linkedin size={16} /> linkedin.com/in/johanneshurmerinta</a>
                 </div>
                 <div className="mt-6">
                   <div className="text-white/90 font-medium mb-2">Download</div>
