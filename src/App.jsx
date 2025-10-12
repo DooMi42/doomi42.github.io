@@ -97,67 +97,8 @@ const StatsBar = () => (
   </div>
 );
 
-// Fixed positions per label (percentages). Edit these to move chips.
-const fixedChipPositions = {
-  "Unity AI": { top: 20, left: 15 },
-  "JWT": { top: 40, left: 25 },
-  "LLM Bots": { top: 25, left: 60 },
-  "CI/CD": { top: 65, left: 20 },
-  "REST APIs": { top: 50, left: 70 },
-  "Docker": { top: 70, left: 55 },
-  "PostgreSQL": { top: 35, left: 80 },
-  "TypeScript": { top: 15, left: 75 },
-  "Clean Architecture": { top: 75, left: 30 },
-  "Swagger": { top: 55, left: 85 },
-  "Flyway": { top: 25, left: 40 },
-  "GitHub Actions": { top: 80, left: 75 },
-};
-
-// Deterministic position generator using fixed map with graceful grid fallback
-const generateChipPositions = (labels) => {
-  const positions = [];
-  const missing = [];
-  labels.forEach((label, idx) => {
-    const p = fixedChipPositions[label];
-    if (p) {
-      positions[idx] = p;
-    } else {
-      missing.push(idx);
-    }
-  });
-  if (missing.length) {
-    const count = missing.length;
-    const cols = Math.min(6, Math.max(3, Math.ceil(Math.sqrt(count))));
-    const rows = Math.max(2, Math.ceil(count / cols));
-    const cellW = 100 / cols;
-    const cellH = 100 / rows;
-    missing.forEach((slot, i) => {
-      const c = i % cols;
-      const r = Math.floor(i / cols);
-      const left = Math.min(94, Math.max(6, c * cellW + cellW * 0.5));
-      const top = Math.min(92, Math.max(8, r * cellH + cellH * 0.5));
-      positions[slot] = { top, left };
-    });
-  }
-  return positions;
-};
 
 export default function JohannesPortfolio() {
-  const chipLabels = [
-    "Unity AI",
-    "JWT",
-    "LLM Bots",
-    "CI/CD",
-    "REST APIs",
-    "Docker",
-    "PostgreSQL",
-    "TypeScript",
-    "Clean Architecture",
-    "Swagger",
-    "Flyway",
-    "GitHub Actions",
-  ];
-  const [chipPositions] = useState(() => generateChipPositions(chipLabels));
   
   // Contact form state
   const [formData, setFormData] = useState({
@@ -297,24 +238,15 @@ export default function JohannesPortfolio() {
                 ))}
               </div>
             </div>
-            <div className="relative">
-              <div className="relative h-64 w-full rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md">
+            <div className="relative flex justify-center">
+              <div className="relative h-96 w-96 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md overflow-hidden">
                 <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-indigo-500/20 via-fuchsia-500/10 to-cyan-400/20 blur-2xl" />
                 <div className="absolute inset-0 rounded-3xl bg-[radial-gradient(circle_at_30%_30%,rgba(59,130,246,0.25),transparent_30%),radial-gradient(circle_at_70%_70%,rgba(236,72,153,0.25),transparent_30%)]" />
-                <div className="absolute inset-0">
-                  {chipLabels.map((label, i) => (
-                    <span
-                      key={label}
-                      className="absolute rounded-full border border-white/10 bg-white/10 px-1.5 py-0.5 text-xs text-white/80 backdrop-blur transition-transform duration-300 hover:scale-105 md:px-3 md:py-1 -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0"
-                      style={{ 
-                        top: `${chipPositions[i].top}%`, 
-                        left: `${chipPositions[i].left}%`
-                      }}
-                    >
-                      {label}
-                    </span>
-                  ))}
-                </div>
+                <img 
+                  src="/portfolioselfie.jpg" 
+                  alt="Johannes Hurmerinta - Portfolio Photo"
+                  className="relative w-full h-full object-cover rounded-3xl grayscale hover:grayscale-0 transition-all duration-500"
+                />
               </div>
             </div>
           </div>
