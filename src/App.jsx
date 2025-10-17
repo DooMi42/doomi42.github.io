@@ -186,7 +186,7 @@ export default function JohannesPortfolio() {
       <NeoBackground />
 
       {/* NAV */}
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0B0B10]/70 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0B0B10]/70 backdrop-blur-xl" role="banner">
         <Container className="flex h-16 items-center justify-between">
           <a href="#" className="group inline-flex items-center gap-2">
             <div className="relative">
@@ -195,7 +195,7 @@ export default function JohannesPortfolio() {
             </div>
             <span className="text-sm text-white/70 group-hover:text-white transition">Johannes Hurmerinta</span>
           </a>
-          <nav className="hidden md:flex items-center gap-6 text-sm text-white/70">
+          <nav className="hidden md:flex items-center gap-6 text-sm text-white/70" aria-label="Primary">
             <a href="#about" className="hover:text-white transition">About</a>
             <a href="#projects" className="hover:text-white transition">Projects</a>
             <a href="#skills" className="hover:text-white transition">Skills</a>
@@ -210,13 +210,14 @@ export default function JohannesPortfolio() {
         </Container>
       </header>
 
+      <main id="main" role="main">
       {/* HERO */}
-      <section className="relative border-b border-white/10">
+      <section className="relative border-b border-white/10" aria-labelledby="hero-heading">
         <Container className="relative py-16 md:py-24">
           <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-2">
             <div className="flex flex-col items-start gap-6">
               <Badge><Cpu size={14}/> Software Developer & Entrepreneur</Badge>
-              <h1 className="text-4xl/tight md:text-6xl/tight font-semibold tracking-tight">Building <span className="bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-cyan-300 bg-clip-text text-transparent">games</span>,<br className="hidden md:block" /> web apps & AI solutions</h1>
+              <h1 id="hero-heading" className="text-4xl/tight md:text-6xl/tight font-semibold tracking-tight">Building <span className="bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-cyan-300 bg-clip-text text-transparent">games</span>,<br className="hidden md:block" /> web apps & AI solutions</h1>
               <p className="max-w-2xl text-white/70 text-base md:text-lg leading-relaxed">IT BBA @ Haaga-Helia. Unity + C#, Full Stack Development and AI solutions — with a product mindset.</p>
               <div className="flex flex-wrap items-center gap-3">
                 <Button href="#projects">Explore Projects <ArrowRight size={16}/></Button>
@@ -244,7 +245,10 @@ export default function JohannesPortfolio() {
                 <div className="absolute inset-0 rounded-3xl bg-[radial-gradient(circle_at_30%_30%,rgba(59,130,246,0.25),transparent_30%),radial-gradient(circle_at_70%_70%,rgba(236,72,153,0.25),transparent_30%)]" />
                 <img 
                   src="/portfolioselfie.jpg" 
-                  alt="Johannes Hurmerinta - Portfolio Photo"
+                  alt="Portrait of Johannes Hurmerinta, software developer"
+                  loading="eager"
+                  width="384"
+                  height="384"
                   className="relative w-full h-full object-cover rounded-3xl grayscale hover:grayscale-0 transition-all duration-500"
                 />
               </div>
@@ -254,14 +258,15 @@ export default function JohannesPortfolio() {
       </section>
 
       {/* STATS BAR */}
-      <section className="relative border-b border-white/10">
+      <section className="relative border-b border-white/10" aria-labelledby="stats-heading">
         <Container className="py-8">
+          <h2 id="stats-heading" className="sr-only">Quick stats</h2>
           <StatsBar />
         </Container>
       </section>
 
       {/* ABOUT ME */}
-      <section id="about" className="relative border-b border-white/10">
+      <section id="about" className="relative border-b border-white/10" aria-labelledby="about-heading">
         <Container className="py-16 md:py-24">
           <SectionTitle kicker="STORY" title="About me" subtitle="Beyond the code — a glimpse into who I am." />
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
@@ -313,7 +318,7 @@ export default function JohannesPortfolio() {
       </section>
 
       {/* PROJECTS */}
-      <section id="projects" className="relative border-b border-white/10">
+      <section id="projects" className="relative border-b border-white/10" aria-labelledby="projects-heading">
         <Container className="py-16 md:py-24">
           <SectionTitle kicker={<><Terminal size={14}/> SHOWCASE</>} title="Featured projects" subtitle="Games, web apps, and AI chatbots with real deliverables." />
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -372,7 +377,7 @@ export default function JohannesPortfolio() {
       </section>
 
       {/* SKILLS */}
-      <section id="skills" className="relative border-b border-white/10">
+      <section id="skills" className="relative border-b border-white/10" aria-labelledby="skills-heading">
         <Container className="py-16 md:py-24">
           <SectionTitle kicker="STACK" title="Tech & tools" subtitle="The languages, frameworks, and platforms I reach for." />
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -384,7 +389,7 @@ export default function JohannesPortfolio() {
       </section>
 
       {/* EXPERIENCE */}
-      <section id="experience" className="relative border-b border-white/10">
+      <section id="experience" className="relative border-b border-white/10" aria-labelledby="experience-heading">
         <Container className="py-16 md:py-24">
           <SectionTitle kicker="TRACK" title="Experience & education" subtitle="A mix of hands-on development, entrepreneurship, and studies." />
           <div className="space-y-4">
@@ -416,7 +421,7 @@ export default function JohannesPortfolio() {
       </section>
 
       {/* ENTREPRENEURSHIP */}
-      <section id="entrepreneurship" className="relative border-b border-white/10">
+      <section id="entrepreneurship" className="relative border-b border-white/10" aria-labelledby="entrepreneurship-heading">
         <Container className="py-16 md:py-24">
           <SectionTitle kicker="VENTURES" title="Entrepreneurship" subtitle="Projects with real users and business goals." />
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -428,7 +433,7 @@ export default function JohannesPortfolio() {
 
 
       {/* CONTACT */}
-      <section id="contact" className="relative">
+      <section id="contact" className="relative" aria-labelledby="contact-heading">
         <Container className="py-16 md:py-24">
           <SectionTitle kicker="LET'S TALK" title="Contact" subtitle="Open to freelance, job offers, and collaboration." />
           <Card>
@@ -495,7 +500,9 @@ export default function JohannesPortfolio() {
         </Container>
       </section>
 
-      <footer className="border-t border-white/10 py-10">
+      </main>
+
+      <footer className="border-t border-white/10 py-10" role="contentinfo">
         <Container className="flex flex-col items-center justify-between gap-4 md:flex-row">
           <div className="text-sm text-white/60">© {new Date().getFullYear()} Johannes Hurmerinta</div>
           <div className="flex items-center gap-3 text-sm text-white/70">
