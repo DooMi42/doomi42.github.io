@@ -6,14 +6,43 @@
   html {
     font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  
+
   body {
     margin: 0;
     padding: 0;
+    background: #000;
+    color: #fff;
   }
-  
+
   * {
     box-sizing: border-box;
   }
+
+  ::selection {
+    background: #c8ff00;
+    color: #000;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #000;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #222;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #444;
+  }
+}
+
+/* Pause marquee on hover */
+.marquee-track:hover {
+  animation-play-state: paused;
 }

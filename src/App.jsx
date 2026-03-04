@@ -1,516 +1,1005 @@
-import React, { useState } from "react";
-import { ArrowRight, Github, Linkedin, Mail, Download, ExternalLink, Cpu, Gamepad2, Rocket, Terminal, X, CheckCircle, AlertCircle } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Github,
+  Linkedin,
+  Mail,
+  Download,
+  CheckCircle,
+  AlertCircle,
+  Menu,
+  X,
+} from "lucide-react";
 import { sendEmail } from "./services/emailService";
 
-/**
- * Eemeli Portfolio — Neo v2 (Enhanced) with Visual Showcase
- * - Replaces the Blog & Notes section with a visual gallery showcase
- * - Cursor-style neon/glass + subtle particles
- */
+/* ═══════════════════════════════════════════════════════
+   ANIMATED BACKGROUND
+   ═══════════════════════════════════════════════════════ */
 
-const cx = (...c) => c.filter(Boolean).join(" ");
+const AnimatedBackground = () => {
+  const canvasRef = useRef(null);
 
-const Container = ({ children, className = "" }) => (
-  <div className={cx("mx-auto w-full max-w-7xl px-5 md:px-8", className)}>{children}</div>
-);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animId;
+    let particles = [];
+    const PARTICLE_COUNT = 60;
+    const ACCENT = [200, 255, 0];
 
-const Badge = ({ children }) => (
-  <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs tracking-wide text-white/80 backdrop-blur-sm">{children}</span>
-);
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
 
-const Button = ({ children, href, onClick, variant = "primary", className = "", type, newTab = false }) => {
-  const base = "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all active:scale-[0.98]";
-  const styles = {
-    primary: "bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.35)] hover:shadow-[0_0_36px_rgba(168,85,247,0.6)]",
-    ghost: "bg-white/5 text-white hover:bg-white/10 border border-white/10",
-    outline: "border border-white/20 text-white hover:bg-white/5",
-  };
-  const cls = cx(base, styles[variant], className);
-  if (href) return (
-    (() => {
-      const isExternal = /^https?:\/\//i.test(href);
-      const target = (isExternal || newTab) ? "_blank" : undefined;
-      const rel = (isExternal || newTab) ? "noreferrer" : undefined;
-      return <a className={cls} href={href} target={target} rel={rel}>{children}</a>;
-    })()
-  );
+    // seed particles
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.5 + 0.5,
+        dx: (Math.random() - 0.5) * 0.3,
+        dy: (Math.random() - 0.5) * 0.3,
+        opacity: Math.random() * 0.3 + 0.05,
+        pulse: Math.random() * Math.PI * 2,
+        pulseSpeed: Math.random() * 0.01 + 0.005,
+      });
+    }
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach(p => {
+        p.x += p.dx;
+        p.y += p.dy;
+        p.pulse += p.pulseSpeed;
+
+        // wrap around
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+
+        const flicker = (Math.sin(p.pulse) + 1) / 2;
+        const alpha = p.opacity * (0.4 + flicker * 0.6);
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${ACCENT[0]},${ACCENT[1]},${ACCENT[2]},${alpha})`;
+        ctx.fill();
+      });
+
+      // draw faint connecting lines between close particles
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(${ACCENT[0]},${ACCENT[1]},${ACCENT[2]},${0.04 * (1 - dist / 120)})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+
+      animId = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener('resize', resize);
+    };
+  }, []);
+
   return (
-    <button className={cls} onClick={onClick} type={type}>{children}</button>
+    <div className="pointer-events-none fixed inset-0 z-0">
+      {/* Canvas particles + connection lines */}
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+
+      {/* Floating gradient orbs */}
+      <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-accent/[0.03] blur-[120px] animate-orb-1" />
+      <div className="absolute bottom-[-15%] right-[-5%] w-[500px] h-[500px] rounded-full bg-white/[0.02] blur-[100px] animate-orb-2" />
+      <div className="absolute top-[40%] right-[20%] w-[300px] h-[300px] rounded-full bg-accent/[0.02] blur-[80px] animate-orb-3" />
+
+      {/* Subtle moving grid overlay */}
+      <div className="absolute inset-0 opacity-[0.025] animate-grid-drift"
+        style={{
+          backgroundImage: 'linear-gradient(rgba(200,255,0,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(200,255,0,0.4) 1px, transparent 1px)',
+          backgroundSize: '80px 80px',
+        }}
+      />
+
+      {/* Horizon line glow */}
+      <div className="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/10 to-transparent" />
+    </div>
   );
 };
 
-const Card = ({ children, className = "" }) => (
-  <div className={cx(
-    "group relative rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition-all",
-    "hover:-translate-y-1 hover:bg-white/[0.07] hover:shadow-[0_20px_60px_-20px_rgba(79,70,229,0.55)]",
-    className
-  )}>
-    <div className="pointer-events-none absolute -inset-[1px] rounded-2xl opacity-0 blur-lg transition-opacity duration-500 group-hover:opacity-70" style={{
-      background:
-        "conic-gradient(from 180deg at 50% 50%, rgba(99,102,241,0.25), rgba(236,72,153,0.25), rgba(20,184,166,0.25), rgba(99,102,241,0.25))",
-    }} />
+/* ═══════════════════════════════════════════════════════
+   HOOKS
+   ═══════════════════════════════════════════════════════ */
+
+const useInView = (threshold = 0.12) => {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setVisible(true);
+          obs.unobserve(el);
+        }
+      },
+      { threshold }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold]);
+  return [ref, visible];
+};
+
+/* ═══════════════════════════════════════════════════════
+   PRIMITIVES
+   ═══════════════════════════════════════════════════════ */
+
+/** Scroll-triggered reveal wrapper */
+const Reveal = ({ children, className = "", delay = 0 }) => {
+  const [ref, visible] = useInView();
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+      } ${className}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  );
+};
+
+/** Padded section shell */
+const Section = ({ id, children, className = "" }) => (
+  <section id={id} className={`relative py-28 md:py-40 ${className}`}>
+    <div className="mx-auto max-w-[1400px] px-6 md:px-12">{children}</div>
+  </section>
+);
+
+/** Section label / kicker */
+const Label = ({ children }) => (
+  <div className="mb-5 text-xs font-semibold tracking-[0.35em] uppercase text-accent">
     {children}
   </div>
 );
 
-const SectionTitle = ({ kicker, title, subtitle }) => (
-  <div className="mb-10 flex flex-col items-start gap-4">
-    {kicker && <Badge>{kicker}</Badge>}
-    <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-white">{title}</h2>
-    {subtitle && <p className="max-w-3xl text-white/70 leading-relaxed">{subtitle}</p>}
-  </div>
+/** Section heading */
+const Heading = ({ children, className = "" }) => (
+  <h2
+    className={`text-4xl sm:text-5xl lg:text-6xl font-black uppercase leading-[1] tracking-tight ${className}`}
+  >
+    {children}
+  </h2>
 );
 
-const NeoBackground = () => (
-  <div className="pointer-events-none absolute inset-0 -z-10">
-    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(59,130,246,0.18),transparent_40%),radial-gradient(ellipse_at_bottom_left,rgba(236,72,153,0.18),transparent_40%)]" />
-    <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.06)_1px,transparent_1px)] bg-[size:32px_32px] opacity-20" />
-    <div className="absolute inset-0 [mask-image:radial-gradient(white,transparent_70%)]">
-      {Array.from({ length: 40 }).map((_, i) => (
-        <span
-          key={i}
-          className="absolute h-[2px] w-[2px] rounded-full bg-white/50 animate-pulse"
-          style={{ top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`, animationDelay: `${Math.random() * 4}s`, animationDuration: `${3 + Math.random() * 5}s` }}
-        />
-      ))}
-    </div>
-  </div>
-);
+/* ═══════════════════════════════════════════════════════
+   DATA
+   ═══════════════════════════════════════════════════════ */
 
-// --- Stats Bar ---
-const StatsBar = () => (
-  <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-    {[
-      { label: "3+ years", value: "freelance experience" },
-      { label: "10+", value: "projects shipped" },
-      { label: "Unity", value: "C#, Gameplay, AI" },
-      { label: "Backend", value: "Spring Boot, PostgreSQL, JWT" },
-      { label: "Frontend", value: "React, TypeScript, Tailwind, Angular" },
-      { label: "AI", value: "Voiceflow, LLM, Zapier, ML" }
-    ].map((stat, idx) => (
-      <div key={idx} className="relative rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
-        <div className="text-2xl font-bold text-white">{stat.label}</div>
-        <div className="text-sm text-white/70 mt-1">{stat.value}</div>
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-500/10 via-fuchsia-500/10 to-cyan-400/10 opacity-0 hover:opacity-100 transition-opacity" />
-      </div>
-    ))}
-  </div>
-);
+const PROJECTS = [
+  {
+    num: "01",
+    title: "Unannounced Game",
+    org: "Please Be Patient Oy",
+    desc: "C#, Unity + MoreMountains TopDown Engine. Custom Enemy AI and tuned combat feel. Prototyping new features.",
+    tags: ["Unity", "C#", "AI/Gameplay", "Animations", "Enemy AI"],
+    link: "https://discord.gg/xktm4R6myU",
+    linkLabel: "Discord",
+  },
+  {
+    num: "02",
+    title: "Finnish Army Simulator",
+    org: "Please Be Patient Oy",
+    desc: "Unity + C#. Prototyping new features for the game. Game testing and bug fixing.",
+    tags: ["Unity", "C#", "AI/Gameplay", "Animations", "Prototyping"],
+    link: "https://store.steampowered.com/app/1184250/Finnish_Army_Simulator/",
+    linkLabel: "Steam",
+  },
+  {
+    num: "03",
+    title: "QuizzerApp",
+    org: "Teacher Dashboard",
+    desc: "Spring Boot + React + PostgreSQL. Role-based auth, quiz authoring, analytics, and Dockerized deployment.",
+    tags: ["Spring Boot", "React", "PostgreSQL", "Docker"],
+    link: "https://github.com/Qbit-Labs-Ltd/quizzerApp",
+    linkLabel: "GitHub",
+  },
+  {
+    num: "04",
+    title: "Task & Time Tracker",
+    org: "Backend API",
+    desc: "Java 21, JWT, Swagger, Flyway. Production-grade PostgreSQL schema and REST API deployed to Render/Heroku.",
+    tags: ["Java 21", "Spring Boot 3", "JWT & Swagger", "Flyway"],
+    link: "https://github.com/DooMi42/task-and-time-tracking-app",
+    linkLabel: "GitHub",
+  },
+  {
+    num: "05",
+    title: "SME Chatbots",
+    org: "Routing / Sales / Support",
+    desc: "Voiceflow + LLMs. Multi-agent architecture (Lead, Support, Sales). Button-first UX, knowledge base design, and cost control.",
+    tags: ["Voiceflow", "LLM", "Zapier", "Webhooks"],
+    link: "https://mitrox.io/",
+    linkLabel: "Mitrox.io",
+  },
+];
 
+const EXPERIENCE = [
+  {
+    title: "Mitrox Oy — Co-founder / Tech Lead",
+    time: "2025 – Present",
+    desc: "AI chatbots for SMEs, CX automation, integration design.",
+  },
+  {
+    title: "Haaga-Helia UAS — BBA (Software Development)",
+    time: "2024 – Present",
+    desc: "Full stack development, Agile/Scrum, entrepreneurship track.",
+  },
+  {
+    title: "Please Be Patient Oy — Game Developer",
+    time: "2025.01 – 2025.06",
+    desc: "Unannounced Game. Core gameplay features, prototyping, testing and bug fixing.",
+  },
+  {
+    title: "Please Be Patient Oy — Game Developer Trainee",
+    time: "2023.01 – 2023.06",
+    desc: "Finnish Army Simulator. Prototyping new features, game testing and bug fixing.",
+  },
+  {
+    title: "Freelance IT — Developer",
+    time: "2022 – Present",
+    desc: "Websites and integrations for local businesses. AI solutions for businesses.",
+  },
+  {
+    title: "Business College Helsinki (Game Development)",
+    time: "2020 – 2023",
+    desc: "Game Programming, Game Design, Animations, and much more.",
+  },
+];
+
+const SKILLS_GROUPS = [
+  {
+    label: "Languages & Frameworks",
+    items: ["Java · Spring Boot", "React · TypeScript", "Unity · C#", "Angular", "PostgreSQL · Flyway"],
+  },
+  {
+    label: "Tools & Platforms",
+    items: ["Docker · Render", "GitHub · CI/CD", "Swagger · JWT", "Voiceflow"],
+  },
+  {
+    label: "AI & Data",
+    items: ["ML · LLM", "Zapier", "Knowledge Bases"],
+  },
+  {
+    label: "Practices",
+    items: ["Agile / Scrum", "Problem Solving", "Entrepreneurship", "Product Thinking"],
+  },
+];
+
+const MARQUEE_ITEMS = [
+  "Unity", "C#", "React", "TypeScript", "Spring Boot", "PostgreSQL",
+  "Docker", "AI / LLM", "Voiceflow", "Java", "Tailwind", "Angular",
+  "Swagger", "JWT", "Flyway", "CI/CD", "Zapier", "Agile",
+];
+
+const NAV_LINKS = [
+  { label: "About", href: "#about" },
+  { label: "Projects", href: "#projects" },
+  { label: "Skills", href: "#skills" },
+  { label: "Experience", href: "#experience" },
+  { label: "Ventures", href: "#entrepreneurship" },
+  { label: "Contact", href: "#contact" },
+];
+
+/* ═══════════════════════════════════════════════════════
+   MAIN COMPONENT
+   ═══════════════════════════════════════════════════════ */
 
 export default function JohannesPortfolio() {
-  
-  // Contact form state
-  const [formData, setFormData] = useState({
-    name: '',
-    message: ''
-  });
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  /* Contact form state */
+  const [formData, setFormData] = useState({ name: "", message: "" });
   const [formStatus, setFormStatus] = useState({
     isSubmitting: false,
     isSuccess: false,
     isError: false,
-    message: ''
+    message: "",
   });
 
-  // Form handling functions
+  useEffect(() => {
+    const h = () => setScrolled(window.scrollY > 60);
+    window.addEventListener("scroll", h, { passive: true });
+    return () => window.removeEventListener("scroll", h);
+  }, []);
+
+  /* Lock scroll when mobile menu open */
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Basic validation
     if (!formData.name.trim() || !formData.message.trim()) {
-      setFormStatus({
-        isSubmitting: false,
-        isSuccess: false,
-        isError: true,
-        message: 'Please fill in all fields.'
-      });
+      setFormStatus({ isSubmitting: false, isSuccess: false, isError: true, message: "Please fill in all fields." });
       return;
     }
-
-    setFormStatus({
-      isSubmitting: true,
-      isSuccess: false,
-      isError: false,
-      message: ''
-    });
-
+    setFormStatus({ isSubmitting: true, isSuccess: false, isError: false, message: "" });
     try {
-      // Use the email service
       const result = await sendEmail(formData);
-      
       if (result.success) {
-        // Execute the action (e.g., open email client)
-        if (result.action) {
-          result.action();
-        }
-        
-        setFormStatus({
-          isSubmitting: false,
-          isSuccess: true,
-          isError: false,
-          message: result.message
-        });
-
-        // Reset form
-        setFormData({ name: '', message: '' });
+        if (result.action) result.action();
+        setFormStatus({ isSubmitting: false, isSuccess: true, isError: false, message: result.message });
+        setFormData({ name: "", message: "" });
       } else {
-        setFormStatus({
-          isSubmitting: false,
-          isSuccess: false,
-          isError: true,
-          message: result.message
-        });
+        setFormStatus({ isSubmitting: false, isSuccess: false, isError: true, message: result.message });
       }
-      
-    } catch (error) {
-      console.error('Form submission error:', error);
-      setFormStatus({
-        isSubmitting: false,
-        isSuccess: false,
-        isError: true,
-        message: 'Something went wrong. Please try again or contact me directly.'
-      });
+    } catch {
+      setFormStatus({ isSubmitting: false, isSuccess: false, isError: true, message: "Something went wrong. Please try again or contact me directly." });
     }
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#0B0B10] text-white font-sans">
-      <NeoBackground />
+    <div className="min-h-screen bg-black text-white antialiased selection:bg-accent selection:text-black">
+      <AnimatedBackground />
 
-      {/* NAV */}
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0B0B10]/70 backdrop-blur-xl" role="banner">
-        <Container className="flex h-16 items-center justify-between">
-          <a href="#" className="group inline-flex items-center gap-2">
-            <div className="relative">
-              <span className="absolute -inset-1 rounded-lg bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 opacity-40 blur" />
-              <div className="relative rounded-lg bg-black px-2 py-1 text-sm font-semibold tracking-widest">JH</div>
-            </div>
-            <span className="text-sm text-white/70 group-hover:text-white transition">Johannes Hurmerinta</span>
+      {/* ── NAVIGATION ─────────────────────────────────── */}
+      <header
+        className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
+          scrolled
+            ? "bg-black/80 backdrop-blur-xl border-b border-white/5"
+            : "bg-transparent"
+        }`}
+        role="banner"
+      >
+        <div className="mx-auto max-w-[1400px] px-6 md:px-12 flex h-[140px] items-center justify-between">
+          {/* Logo */}
+          <a
+            href="#"
+            className="relative flex items-center opacity-90 hover:opacity-100 transition-opacity duration-300"
+            aria-label="Johannes Hurmerinta – home"
+          >
+            <img
+              src="/portfoliopagelogo.png"
+              alt="JH logo"
+              className="h-28 w-auto"
+              style={{ filter: 'brightness(0) invert(1) sepia(1) saturate(5) hue-rotate(35deg)' }}
+            />
           </a>
-          <nav className="hidden md:flex items-center gap-6 text-sm text-white/70" aria-label="Primary">
-            <a href="#about" className="hover:text-white transition">About</a>
-            <a href="#projects" className="hover:text-white transition">Projects</a>
-            <a href="#skills" className="hover:text-white transition">Skills</a>
-            <a href="#experience" className="hover:text-white transition">Experience</a>
-            <a href="#entrepreneurship" className="hover:text-white transition">Entrepreneurship</a>
-            <a href="#contact" className="hover:text-white transition">Contact</a>
+
+          {/* Desktop nav */}
+          <nav
+            className="hidden lg:flex items-center gap-8 text-[13px] font-medium tracking-[0.2em] uppercase text-white/50"
+            aria-label="Primary"
+          >
+            {NAV_LINKS.map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                className="hover:text-white transition-colors duration-300"
+              >
+                {l.label}
+              </a>
+            ))}
           </nav>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" href="/cv.pdf" download="Johannes_Hurmerinta_CV.pdf"><Download size={16}/> CV</Button>
-            <Button href="mailto:johannes.hurmerinta@mitrox.io"><Mail size={16}/> Contact</Button>
+
+          {/* Right side */}
+          <div className="flex items-center gap-5">
+            <a
+              href="/cv.pdf"
+              download="Johannes_Hurmerinta_CV.pdf"
+              className="hidden sm:inline-flex items-center gap-2 text-[13px] font-medium tracking-[0.15em] uppercase text-white/50 hover:text-white transition-colors duration-300"
+            >
+              <Download size={15} /> CV
+            </a>
+            <button
+              className="lg:hidden text-white/70 hover:text-white transition-colors"
+              onClick={() => setMenuOpen(true)}
+              aria-label="Open menu"
+            >
+              <Menu size={24} />
+            </button>
           </div>
-        </Container>
+        </div>
       </header>
 
-      <main id="main" role="main">
-      {/* HERO */}
-      <section className="relative border-b border-white/10" aria-labelledby="hero-heading">
-        <Container className="relative py-16 md:py-24">
-          <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-2">
-            <div className="flex flex-col items-start gap-6">
-              <Badge><Cpu size={14}/> Software Developer & Entrepreneur</Badge>
-              <h1 id="hero-heading" className="text-4xl/tight md:text-6xl/tight font-semibold tracking-tight">Building <span className="bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-cyan-300 bg-clip-text text-transparent">games</span>,<br className="hidden md:block" /> web apps & AI solutions</h1>
-              <p className="max-w-2xl text-white/70 text-base md:text-lg leading-relaxed">IT BBA @ Haaga-Helia. Unity + C#, Full Stack Development and AI solutions — with a product mindset.</p>
-              <div className="flex flex-wrap items-center gap-3">
-                <Button href="#projects">Explore Projects <ArrowRight size={16}/></Button>
-                <Button variant="ghost" href="https://github.com/DooMi42"><Github size={16}/> GitHub</Button>
-                <Button variant="ghost" href="https://www.linkedin.com/in/johanneshurmerinta/"><Linkedin size={16}/> LinkedIn</Button>
-              </div>
-              <div className="mt-4 grid w-full grid-cols-2 gap-3 md:w-auto md:grid-cols-4">
-                {[
-                  { k: "Unity + C#", v: "Enemy AI + Game logics" },
-                  { k: "Spring Boot", v: "APIs, Auth + JWT" },
-                  { k: "PostgreSQL", v: "Docker + Render" },
-                  { k: "Voiceflow", v: "AI Assistants + Sales Support" },
-                ].map((s) => (
-                  <div key={s.k} className="relative rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/80">
-                    <div className="font-medium">{s.k}</div>
-                    <div className="text-white/60">{s.v}</div>
-                    <div className="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-white/10" />
+      {/* ── MOBILE MENU OVERLAY ────────────────────────── */}
+      <div
+        className={`fixed inset-0 z-[60] bg-black transition-opacity duration-500 ${
+          menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+      >
+        <div className="mx-auto max-w-[1400px] px-6 md:px-12 flex h-[140px] items-center justify-between">
+          <img
+              src="/portfoliopagelogo.png"
+              alt="JH logo"
+              className="h-28 w-auto"
+              style={{ filter: 'brightness(0) invert(1) sepia(1) saturate(5) hue-rotate(35deg)' }}
+            />
+          <button
+            className="text-white/70 hover:text-white transition-colors"
+            onClick={() => setMenuOpen(false)}
+            aria-label="Close menu"
+          >
+            <X size={28} />
+          </button>
+        </div>
+        <nav className="flex flex-col items-start gap-2 px-6 md:px-12 mt-8">
+          {NAV_LINKS.map((l, i) => (
+            <a
+              key={l.href}
+              href={l.href}
+              onClick={() => setMenuOpen(false)}
+              className="text-4xl sm:text-5xl font-black uppercase tracking-tight text-white/80 hover:text-accent transition-colors duration-300"
+              style={{ transitionDelay: `${i * 50}ms` }}
+            >
+              {l.label}
+            </a>
+          ))}
+          <div className="mt-10 flex items-center gap-6">
+            <a href="https://github.com/DooMi42" target="_blank" rel="noreferrer" className="text-white/50 hover:text-white transition-colors">
+              <Github size={22} />
+            </a>
+            <a href="https://www.linkedin.com/in/johanneshurmerinta/" target="_blank" rel="noreferrer" className="text-white/50 hover:text-white transition-colors">
+              <Linkedin size={22} />
+            </a>
+            <a href="mailto:johannes.hurmerinta@mitrox.io" className="text-white/50 hover:text-white transition-colors">
+              <Mail size={22} />
+            </a>
+          </div>
+        </nav>
+      </div>
+
+      <main>
+
+        {/* ── HERO ──────────────────────────────────────── */}
+        <section className="relative min-h-screen flex items-center overflow-hidden" aria-labelledby="hero-heading">
+          <div className="relative z-10 mx-auto max-w-[1400px] px-6 md:px-12 w-full pt-28 pb-16">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+
+              {/* Text */}
+              <div className="lg:col-span-7 flex flex-col gap-7">
+                <Reveal>
+                  <div className="text-xs sm:text-sm font-medium tracking-[0.4em] uppercase text-white/35">
+                    Software Developer &amp; Entrepreneur
                   </div>
-                ))}
+                </Reveal>
+
+                <Reveal delay={100}>
+                  <h1
+                    id="hero-heading"
+                    className="text-[clamp(2.8rem,8vw,8rem)] font-black uppercase leading-[0.92] tracking-tight"
+                  >
+                    Building{" "}
+                    <span className="text-accent">Games</span>,
+                    <br />
+                    Web Apps
+                    <br />
+                    &amp;&nbsp;<span className="text-accent">AI</span>
+                  </h1>
+                </Reveal>
+
+                <Reveal delay={200}>
+                  <p className="max-w-xl text-base sm:text-lg text-white/45 leading-relaxed">
+                    IT BBA @ Haaga-Helia. Unity&nbsp;+&nbsp;C#, Full Stack Development and
+                    AI solutions — with a product mindset.
+                  </p>
+                </Reveal>
+
+                <Reveal delay={300}>
+                  <div className="flex flex-wrap items-center gap-4 mt-2">
+                    <a
+                      href="#projects"
+                      className="group inline-flex items-center gap-3 bg-accent text-black px-8 py-4 text-sm font-bold tracking-wider uppercase hover:bg-white transition-all duration-300"
+                    >
+                      Explore Projects
+                      <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                    </a>
+                    <a
+                      href="https://github.com/DooMi42"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 border border-white/15 px-6 py-4 text-sm font-medium tracking-wider uppercase text-white/60 hover:text-white hover:border-white/40 transition-all duration-300"
+                    >
+                      <Github size={16} /> GitHub
+                    </a>
+                    <a
+                      href="https://www.linkedin.com/in/johanneshurmerinta/"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 border border-white/15 px-6 py-4 text-sm font-medium tracking-wider uppercase text-white/60 hover:text-white hover:border-white/40 transition-all duration-300"
+                    >
+                      <Linkedin size={16} /> LinkedIn
+                    </a>
+                  </div>
+                </Reveal>
+              </div>
+
+              {/* Portrait */}
+              <div className="lg:col-span-5 flex justify-center lg:justify-end">
+                <Reveal delay={400}>
+                  <div className="relative w-72 h-[420px] sm:w-80 sm:h-[480px] lg:w-[360px] lg:h-[520px]">
+                    <img
+                      src="/portfolioselfie.jpg"
+                      alt="Portrait of Johannes Hurmerinta, software developer"
+                      loading="eager"
+                      width="384"
+                      height="520"
+                      className="w-full h-full object-cover transition-all duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+                    {/* Accent corner lines */}
+                    <div className="absolute top-0 left-0 w-12 h-px bg-accent" />
+                    <div className="absolute top-0 left-0 h-12 w-px bg-accent" />
+                    <div className="absolute bottom-0 right-0 w-12 h-px bg-accent" />
+                    <div className="absolute bottom-0 right-0 h-12 w-px bg-accent" />
+                  </div>
+                </Reveal>
               </div>
             </div>
-            <div className="relative flex justify-center">
-              <div className="relative h-96 w-96 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md overflow-hidden">
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-indigo-500/20 via-fuchsia-500/10 to-cyan-400/20 blur-2xl" />
-                <div className="absolute inset-0 rounded-3xl bg-[radial-gradient(circle_at_30%_30%,rgba(59,130,246,0.25),transparent_30%),radial-gradient(circle_at_70%_70%,rgba(236,72,153,0.25),transparent_30%)]" />
-                <img 
-                  src="/portfolioselfie.jpg" 
-                  alt="Portrait of Johannes Hurmerinta, software developer"
-                  loading="eager"
-                  width="384"
-                  height="384"
-                  className="relative w-full h-full object-cover rounded-3xl grayscale hover:grayscale-0 transition-all duration-500"
-                />
-              </div>
-            </div>
           </div>
-        </Container>
-      </section>
 
-      {/* STATS BAR */}
-      <section className="relative border-b border-white/10" aria-labelledby="stats-heading">
-        <Container className="py-8">
-          <h2 id="stats-heading" className="sr-only">Quick stats</h2>
-          <StatsBar />
-        </Container>
-      </section>
-
-      {/* ABOUT ME */}
-      <section id="about" className="relative border-b border-white/10" aria-labelledby="about-heading">
-        <Container className="py-16 md:py-24">
-          <SectionTitle kicker="STORY" title="About me" subtitle="Beyond the code — a glimpse into who I am." />
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-            <Card>
-              <div className="mb-4 flex items-center gap-2 text-white/80">
-                <span className="text-2xl">🎓</span>
-                <span className="font-medium">Studies & Growth</span>
-              </div>
-              <p className="text-white/70 leading-relaxed mb-4">
-                Currently pursuing my BBA in Software Development at Haaga-Helia UAS, where I'm diving deep into full stack development. The entrepreneurship track has been a game-changer, teaching me to think 
-                beyond just writing code to building products that solve real problems.
-              </p>
-            </Card>
-            <Card>
-              <div className="mb-4 flex items-center gap-2 text-white/80">
-                <span className="text-2xl">🚀</span>
-                <span className="font-medium">Entrepreneurship Journey</span>
-              </div>
-              <p className="text-white/70 leading-relaxed mb-4">
-                Co-founded Mitrox Oy to help SMEs with AI assistants, and taking leadership roles in school projects. 
-                There's something magical about taking an idea from sketch to shipped product. Each project teaches me 
-                something new about user needs, market fit, and the art of iteration.
-              </p>
-            </Card>
-            <Card>
-              <div className="mb-4 flex items-center gap-2 text-white/80">
-                <span className="text-2xl">🐶</span>
-                <span className="font-medium">Life Beyond Code</span>
-              </div>
-              <p className="text-white/70 leading-relaxed mb-4">
-                When I'm not debugging or building, you'll find me experimenting in the kitchen (cooking is just another 
-                form of problem-solving), planning my next travel adventure, or spending quality time with Yoda, my loyal 
-                coding companion. Balance is key. Great ideas often come when you step away from the screen.
-              </p>
-            </Card>
-            <Card>
-              <div className="mb-4 flex items-center gap-2 text-white/80">
-                <span className="text-2xl">🌍</span>
-                <span className="font-medium">Global Perspective</span>
-              </div>
-              <p className="text-white/70 leading-relaxed mb-4">
-                Traveling has shaped how I approach development. Every culture has unique ways of solving problems. 
-                Whether it's a local business needing a simple website or a complex AI system, I bring that 
-                global mindset to create solutions that truly work for people, not just technically impressive demos.
-              </p>
-            </Card>
+          {/* Scroll indicator */}
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 text-white/25">
+            <span className="text-[10px] tracking-[0.4em] uppercase">Scroll</span>
+            <div className="w-px h-10 bg-gradient-to-b from-white/30 to-transparent animate-pulse" />
           </div>
-        </Container>
-      </section>
+        </section>
 
-      {/* PROJECTS */}
-      <section id="projects" className="relative border-b border-white/10" aria-labelledby="projects-heading">
-        <Container className="py-16 md:py-24">
-          <SectionTitle kicker={<><Terminal size={14}/> SHOWCASE</>} title="Featured projects" subtitle="Games, web apps, and AI chatbots with real deliverables." />
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <Card>
-              <div className="mb-4 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-white/80"><Gamepad2 size={18}/> Unannounced Game - Please Be Patient Oy</div>
-                <a className="text-xs inline-flex items-center gap-1 text-white/60 hover:text-white" href="https://discord.gg/xktm4R6myU" target="_blank" rel="noreferrer">Discord <ExternalLink size={14}/></a>
-              </div>
-              <p className="text-white/70 leading-relaxed mb-4">C#, Unity + MoreMountains TopDown Engine. Custom Enemy AI and tuned combat feel. Prototyping new features.</p>
-              <div className="flex flex-wrap gap-2 text-xs text-white/70">
-                <Badge>Unity</Badge><Badge>C#</Badge><Badge>AI/Gameplay</Badge><Badge>Animations</Badge><Badge>Enemy AI</Badge>
-              </div>
-            </Card>
-            <Card>
-              <div className="mb-4 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-white/80"><Gamepad2 size={18}/> Finnish Army Simulator - Please Be Patient Oy</div>
-                <a className="text-xs inline-flex items-center gap-1 text-white/60 hover:text-white" href="https://store.steampowered.com/app/1184250/Finnish_Army_Simulator/" target="_blank" rel="noreferrer">Steam <ExternalLink size={14}/></a>
-              </div>
-              <p className="text-white/70 leading-relaxed mb-4">Unity + C#. Prototyping new features for the game. Game testing and bug fixing.</p>
-              <div className="flex flex-wrap gap-2 text-xs text-white/70">
-                <Badge>Unity</Badge><Badge>C#</Badge><Badge>AI/Gameplay</Badge><Badge>Animations</Badge><Badge>Prototyping</Badge>
-              </div>
-            </Card>
-            <Card>
-              <div className="mb-4 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-white/80"><Cpu size={18}/> QuizzerApp — Teacher Dashboard</div>
-                <a className="text-xs inline-flex items-center gap-1 text-white/60 hover:text-white" href="https://github.com/Qbit-Labs-Ltd/quizzerApp" target="_blank" rel="noreferrer">GitHub <ExternalLink size={14}/></a>
-              </div>
-              <p className="text-white/70 leading-relaxed mb-4">Spring Boot + React + PostgreSQL. Role-based auth, quiz authoring, analytics, and Dockerized deployment.</p>
-              <div className="flex flex-wrap gap-2 text-xs text-white/70">
-                <Badge>Spring Boot</Badge><Badge>React</Badge><Badge>PostgreSQL</Badge><Badge>Docker</Badge>
-              </div>
-            </Card>
-            <Card>
-              <div className="mb-4 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-white/80"><Terminal size={18}/> Task & Time Tracker — Backend</div>
-                <a className="text-xs inline-flex items-center gap-1 text-white/60 hover:text-white" href="https://github.com/DooMi42/task-and-time-tracking-app" target="_blank" rel="noreferrer">GitHub <ExternalLink size={14}/></a>
-              </div>
-              <p className="text-white/70 leading-relaxed mb-4">Java 21, JWT, Swagger, Flyway. Production-grade PostgreSQL schema and REST API deployed to Render/Heroku.</p>
-              <div className="flex flex-wrap gap-2 text-xs text-white/70">
-                <Badge>Java 21</Badge><Badge>Spring Boot 3</Badge><Badge>JWT & Swagger</Badge><Badge>Flyway</Badge>
-              </div>
-            </Card>
-            <Card>
-              <div className="mb-4 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-white/80"><Rocket size={18}/> SME Chatbots — Routing / Sales / Support</div>
-                <a className="text-xs inline-flex items-center gap-1 text-white/60 hover:text-white" href="https://mitrox.io/" target="_blank" rel="noreferrer">Mitrox.io <ExternalLink size={14}/></a>
-              </div>
-              <p className="text-white/70 leading-relaxed mb-4">Voiceflow + LLMs. Multi-agent architecture (Lead, Support, Sales). Button-first UX, knowledge base design, and cost control.</p>
-              <div className="flex flex-wrap gap-2 text-xs text-white/70">
-                <Badge>Voiceflow</Badge><Badge>LLM</Badge><Badge>Zapier</Badge><Badge>Webhooks</Badge>
-              </div>
-            </Card>
-          </div>
-        </Container>
-      </section>
-
-      {/* SKILLS */}
-      <section id="skills" className="relative border-b border-white/10" aria-labelledby="skills-heading">
-        <Container className="py-16 md:py-24">
-          <SectionTitle kicker="STACK" title="Tech & tools" subtitle="The languages, frameworks, and platforms I reach for." />
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {["Java · Spring Boot","React · TypeScript","Unity · C#","PostgreSQL · Flyway","Docker · Render","GitHub · CI/CD","Swagger · JWT", "ML · LLM","Voiceflow","Problem solving","Agile/Scrum","Entrepreneurship"].map((s) => (
-              <Card key={s} className="py-5"><div className="text-center text-white/80">{s}</div><div className="mt-3 h-1.5 w-1/2 mx-auto rounded-full bg-white/10"><div className="h-1.5 rounded-full bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-cyan-300 w-[85%]" /></div></Card>
+        {/* ── MARQUEE ──────────────────────────────────── */}
+        <div className="overflow-hidden border-y border-white/[0.07] py-5 bg-black">
+          <div className="marquee-track animate-marquee flex whitespace-nowrap">
+            {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, i) => (
+              <span key={i} className="mx-6 text-sm sm:text-base font-semibold tracking-[0.15em] uppercase text-white/20">
+                {item}
+                <span className="ml-6 text-accent/40">·</span>
+              </span>
             ))}
           </div>
-        </Container>
-      </section>
+        </div>
 
-      {/* EXPERIENCE */}
-      <section id="experience" className="relative border-b border-white/10" aria-labelledby="experience-heading">
-        <Container className="py-16 md:py-24">
-          <SectionTitle kicker="TRACK" title="Experience & education" subtitle="A mix of hands-on development, entrepreneurship, and studies." />
-          <div className="space-y-4">
-            {(() => {
-              const items = [
-                { title: "Mitrox Oy — Co-founder / Tech Lead", time: "2025.08 – present", desc: "AI chatbots for SMEs, CX automation, integration design." },
-                { title: "Haaga-Helia UAS — BBA (Software Development)", time: "2024.01 – present", desc: "Full stack development, Agile/Scrum, entrepreneurship track." },
-                { title: "Please Be Patient Oy / Game Developer", time: "2025.01 - 2025.06", desc: "Unannounced Game. Worked on core gameplay features. Prototyping new features, testing and bug fixing." },
-                { title: "Please Be Patient Oy / Game Developer Trainee", time: "2023.01 - 2023.06", desc: "Finnish Army Simulator. Worked on prototyping new features for the game. Game testing and bug fixing." },
-                { title: "Freelance IT — Developer", time: "2022 – present", desc: "Websites and integrations for local businesses. AI solutions for businesses." },
-                { title: "Business College Helsinki (Game Development)", time: "2020 – 2023", desc: "Game Programming, Game Design, Animations, and much more." },
-              ];
-              const getStartYear = (t) => {
-                const m = t.match(/\d{4}/);
-                return m ? parseInt(m[0], 10) : 0;
-              };
-              items.sort((a, b) => {
-                const aPresent = /present/i.test(a.time) ? 1 : 0;
-                const bPresent = /present/i.test(b.time) ? 1 : 0;
-                if (aPresent !== bPresent) return bPresent - aPresent;
-                return getStartYear(b.time) - getStartYear(a.time);
-              });
-              return items.map((item) => (
-                <Card key={item.title}><div className="flex flex-col gap-1"><div className="text-white/90 font-medium">{item.title}</div><div className="text-white/50 text-sm">{item.time}</div><p className="text-white/70 mt-2">{item.desc}</p></div></Card>
-              ));
-            })()}
+        {/* ── STATS ────────────────────────────────────── */}
+        <section className="relative py-20 md:py-28">
+          <div className="mx-auto max-w-[1400px] px-6 md:px-12">
+            <div className="grid grid-cols-2 gap-px md:grid-cols-3 lg:grid-cols-6 bg-white/[0.04]">
+              {[
+                { value: "3+", label: "Years Experience" },
+                { value: "10+", label: "Projects Shipped" },
+                { value: "Unity", label: "C# · Gameplay · AI" },
+                { value: "React", label: "TS · Tailwind · Angular" },
+                { value: "Backend", label: "Spring Boot · PostgreSQL" },
+                { value: "AI", label: "Voiceflow · LLM · ML" },
+              ].map((s, i) => (
+                <Reveal key={i} delay={i * 80}>
+                  <div className="bg-black p-6 lg:p-8 group hover:bg-white/[0.02] transition-colors duration-500">
+                    <div className="text-2xl sm:text-3xl font-black text-white tracking-tight">{s.value}</div>
+                    <div className="mt-2 text-xs sm:text-sm font-medium tracking-wide uppercase text-white/30 group-hover:text-white/50 transition-colors">
+                      {s.label}
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
           </div>
-        </Container>
-      </section>
+        </section>
 
-      {/* ENTREPRENEURSHIP */}
-      <section id="entrepreneurship" className="relative border-b border-white/10" aria-labelledby="entrepreneurship-heading">
-        <Container className="py-16 md:py-24">
-          <SectionTitle kicker="VENTURES" title="Entrepreneurship" subtitle="Projects with real users and business goals." />
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <Card><div className="mb-3 text-white/90 font-medium">Mitrox Oy — AI Chatbots for SMEs</div><p className="text-white/70 mb-4">Multi-agent chatbots (Routing, Support, Sales). Button-first UX, knowledge curation, KPI tracking. Pricing tiers with quotas and cost control.</p><Button variant="ghost" href="https://mitrox.io/">Read more <ArrowRight size={16} /></Button></Card>
-            <Card><div className="mb-3 text-white/90 font-medium">Qbit Labs Ltd — Prototypes & Experiments</div><p className="text-white/70 mb-4">Team lead on school projects. For me it was a great way to learn about the software development process and the importance of user feedback. And get more entrepreneurial experience.</p><Button variant="ghost" href="https://github.com/Qbit-Labs-Ltd">Explore <ArrowRight size={16} /></Button></Card>
+        {/* ── ABOUT ────────────────────────────────────── */}
+        <Section id="about">
+          <Reveal>
+            <Label>About</Label>
+            <Heading>Beyond the Code</Heading>
+          </Reveal>
+          <Reveal delay={100}>
+            <p className="mt-6 max-w-3xl text-lg sm:text-xl text-white/40 leading-relaxed">
+              Beyond writing code — I build products that solve real problems.
+              Currently pursuing my BBA at Haaga-Helia while co-founding Mitrox&nbsp;Oy
+              to bring AI assistants to small and medium businesses.
+            </p>
+          </Reveal>
+
+          <div className="mt-16 grid grid-cols-1 gap-px sm:grid-cols-2 bg-white/[0.06]">
+            {[
+              {
+                icon: "🎓",
+                title: "Studies & Growth",
+                body: "Currently pursuing my BBA in Software Development at Haaga-Helia UAS, diving deep into full stack development. The entrepreneurship track has taught me to think beyond just writing code to building products that solve real problems.",
+              },
+              {
+                icon: "🚀",
+                title: "Entrepreneurship Journey",
+                body: "Co-founded Mitrox Oy to help SMEs with AI assistants, and taking leadership roles in school projects. There's something magical about taking an idea from sketch to shipped product.",
+              },
+              {
+                icon: "🐶",
+                title: "Life Beyond Code",
+                body: "When I'm not debugging or building, you'll find me experimenting in the kitchen, planning my next travel adventure, or spending quality time with Yoda, my loyal coding companion.",
+              },
+              {
+                icon: "🌍",
+                title: "Global Perspective",
+                body: "Traveling has shaped how I approach development. Every culture has unique ways of solving problems. I bring that global mindset to create solutions that truly work for people.",
+              },
+            ].map((card, i) => (
+              <Reveal key={i} delay={i * 100}>
+                <div className="bg-black p-8 sm:p-10 group hover:bg-white/[0.02] transition-all duration-500">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="text-2xl">{card.icon}</span>
+                    <span className="text-sm font-bold tracking-widest uppercase text-white/70">
+                      {card.title}
+                    </span>
+                  </div>
+                  <p className="text-white/40 leading-relaxed group-hover:text-white/55 transition-colors duration-500">
+                    {card.body}
+                  </p>
+                </div>
+              </Reveal>
+            ))}
           </div>
-        </Container>
-      </section>
+        </Section>
 
+        {/* ── PROJECTS ─────────────────────────────────── */}
+        <Section id="projects">
+          <Reveal>
+            <Label>Projects</Label>
+            <Heading>Featured Work</Heading>
+            <p className="mt-4 max-w-2xl text-white/40 leading-relaxed">
+              Games, web apps, and AI chatbots — each with real deliverables.
+            </p>
+          </Reveal>
 
-      {/* CONTACT */}
-      <section id="contact" className="relative" aria-labelledby="contact-heading">
-        <Container className="py-16 md:py-24">
-          <SectionTitle kicker="LET'S TALK" title="Contact" subtitle="Open to freelance, job offers, and collaboration." />
-          <Card>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div>
-                <div className="mb-2 text-white/90 font-medium">Message</div>
-                <form onSubmit={handleSubmit} className="space-y-3">
-                  <input 
+          <div className="mt-16 flex flex-col gap-px bg-white/[0.06]">
+            {PROJECTS.map((p, i) => (
+              <Reveal key={i} delay={i * 80}>
+                <div className="group relative bg-black p-8 sm:p-10 lg:p-12 hover:bg-white/[0.02] transition-all duration-500">
+                  {/* Accent left bar on hover */}
+                  <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-accent scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-top" />
+
+                  <div className="flex flex-col lg:flex-row lg:items-start gap-6 lg:gap-12">
+                    {/* Number */}
+                    <span className="text-6xl sm:text-7xl font-black text-white/[0.04] leading-none shrink-0 select-none group-hover:text-white/[0.08] transition-colors duration-500">
+                      {p.num}
+                    </span>
+
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-4 mb-3">
+                        <h3 className="text-xl sm:text-2xl font-bold uppercase tracking-tight text-white/90 group-hover:text-white transition-colors">
+                          {p.title}
+                        </h3>
+                        <span className="text-sm font-medium uppercase tracking-wide text-white/30">
+                          {p.org}
+                        </span>
+                      </div>
+                      <p className="text-white/40 leading-relaxed mb-5 max-w-2xl group-hover:text-white/55 transition-colors duration-500">
+                        {p.desc}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {p.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="px-3 py-1 text-[11px] font-semibold tracking-widest uppercase border border-white/[0.08] text-white/35 group-hover:border-white/15 group-hover:text-white/50 transition-all duration-500"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Link */}
+                    <a
+                      href={p.link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="shrink-0 inline-flex items-center gap-2 text-sm font-semibold tracking-wider uppercase text-white/30 hover:text-accent transition-colors duration-300 self-start lg:self-center"
+                    >
+                      {p.linkLabel} <ArrowUpRight size={15} />
+                    </a>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </Section>
+
+        {/* ── SKILLS ───────────────────────────────────── */}
+        <Section id="skills">
+          <Reveal>
+            <Label>Stack</Label>
+            <Heading>Tech &amp; Tools</Heading>
+          </Reveal>
+
+          <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-white/[0.06]">
+            {SKILLS_GROUPS.map((group, gi) => (
+              <Reveal key={gi} delay={gi * 100}>
+                <div className="bg-black p-8 sm:p-10 h-full">
+                  <div className="text-xs font-bold tracking-[0.3em] uppercase text-accent mb-6">
+                    {group.label}
+                  </div>
+                  <ul className="space-y-3">
+                    {group.items.map((item) => (
+                      <li
+                        key={item}
+                        className="text-white/45 text-sm sm:text-base hover:text-white/70 transition-colors duration-300 cursor-default"
+                      >
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </Section>
+
+        {/* ── EXPERIENCE ───────────────────────────────── */}
+        <Section id="experience">
+          <Reveal>
+            <Label>Journey</Label>
+            <Heading>Experience &amp; Education</Heading>
+            <p className="mt-4 max-w-2xl text-white/40 leading-relaxed">
+              A mix of hands-on development, entrepreneurship, and studies.
+            </p>
+          </Reveal>
+
+          <div className="mt-16 flex flex-col gap-px bg-white/[0.06]">
+            {EXPERIENCE.map((item, i) => (
+              <Reveal key={i} delay={i * 60}>
+                <div className="group bg-black p-8 sm:p-10 hover:bg-white/[0.02] transition-all duration-500">
+                  <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2 sm:gap-8 mb-3">
+                    <h3 className="text-lg sm:text-xl font-bold uppercase tracking-tight text-white/85 group-hover:text-white transition-colors">
+                      {item.title}
+                    </h3>
+                    <span className="text-xs font-semibold tracking-[0.2em] uppercase text-white/25 shrink-0">
+                      {item.time}
+                    </span>
+                  </div>
+                  <p className="text-white/40 leading-relaxed max-w-3xl group-hover:text-white/55 transition-colors duration-500">
+                    {item.desc}
+                  </p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </Section>
+
+        {/* ── ENTREPRENEURSHIP ─────────────────────────── */}
+        <Section id="entrepreneurship">
+          <Reveal>
+            <Label>Ventures</Label>
+            <Heading>Entrepreneurship</Heading>
+            <p className="mt-4 max-w-2xl text-white/40 leading-relaxed">
+              Projects with real users and business goals.
+            </p>
+          </Reveal>
+
+          <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-px bg-white/[0.06]">
+            {[
+              {
+                title: "Mitrox Oy",
+                subtitle: "AI Chatbots for SMEs",
+                body: "Multi-agent chatbots (Routing, Support, Sales). Button-first UX, knowledge curation, KPI tracking. Pricing tiers with quotas and cost control.",
+                link: "https://mitrox.io/",
+                linkLabel: "Read More",
+              },
+              {
+                title: "Qbit Labs Ltd",
+                subtitle: "Prototypes & Experiments",
+                body: "Team lead on school projects. A great way to learn about the software development process and the importance of user feedback. And get more entrepreneurial experience.",
+                link: "https://github.com/Qbit-Labs-Ltd",
+                linkLabel: "Explore",
+              },
+            ].map((v, i) => (
+              <Reveal key={i} delay={i * 100}>
+                <div className="group bg-black p-8 sm:p-10 lg:p-12 hover:bg-white/[0.02] transition-all duration-500 h-full flex flex-col">
+                  <div className="text-xs font-bold tracking-[0.3em] uppercase text-accent mb-4">
+                    {v.subtitle}
+                  </div>
+                  <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white/90 group-hover:text-white transition-colors mb-4">
+                    {v.title}
+                  </h3>
+                  <p className="text-white/40 leading-relaxed mb-8 flex-1 group-hover:text-white/55 transition-colors duration-500">
+                    {v.body}
+                  </p>
+                  <a
+                    href={v.link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 text-sm font-bold tracking-wider uppercase text-white/40 hover:text-accent transition-colors duration-300 self-start"
+                  >
+                    {v.linkLabel} <ArrowRight size={15} />
+                  </a>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </Section>
+
+        {/* ── BIG QUOTE ──────────────────────────────── */}
+        <div className="border-y border-white/[0.06] py-24 md:py-32">
+          <div className="mx-auto max-w-[1400px] px-6 md:px-12">
+            <Reveal>
+              <blockquote className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase leading-[1.05] tracking-tight text-white/10">
+                "It doesn't matter where you start
+                <span className="text-accent/30">,</span>
+                <br />
+                it's how you progress from there
+                <span className="text-accent/30">."</span>
+              </blockquote>
+            </Reveal>
+          </div>
+        </div>
+
+        {/* ── CONTACT ──────────────────────────────────── */}
+        <Section id="contact">
+          <Reveal>
+            <Label>Contact</Label>
+            <Heading>Let's Talk</Heading>
+            <p className="mt-4 max-w-2xl text-white/40 leading-relaxed">
+              Open to freelance, job offers, and collaboration.
+            </p>
+          </Reveal>
+
+          <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-px bg-white/[0.06]">
+            {/* Form */}
+            <Reveal>
+              <div className="bg-black p-8 sm:p-10 lg:p-12">
+                <div className="text-xs font-bold tracking-[0.3em] uppercase text-accent mb-6">
+                  Message
+                </div>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <input
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm outline-none placeholder:text-white/40 focus:border-white/30" 
-                    placeholder="Your name" 
+                    className="w-full border-b border-white/10 bg-transparent px-0 py-4 text-sm text-white placeholder:text-white/25 outline-none focus:border-accent transition-colors duration-300"
+                    placeholder="Your name"
                     required
                   />
-                  <textarea 
+                  <textarea
                     name="message"
                     value={formData.message}
                     onChange={handleInputChange}
-                    rows={5} 
-                    className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm outline-none placeholder:text-white/40 focus:border-white/30" 
-                    placeholder="Tell me about your project" 
+                    rows={5}
+                    className="w-full border-b border-white/10 bg-transparent px-0 py-4 text-sm text-white placeholder:text-white/25 outline-none focus:border-accent transition-colors duration-300 resize-none"
+                    placeholder="Tell me about your project"
                     required
                   />
-                  
-                  {/* Status Messages */}
+
                   {formStatus.message && (
-                    <div className={`flex items-center gap-2 p-3 rounded-xl text-sm ${
-                      formStatus.isSuccess 
-                        ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
-                        : formStatus.isError 
-                        ? 'bg-red-500/10 text-red-400 border border-red-500/20'
-                        : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                    }`}>
+                    <div
+                      className={`flex items-center gap-2 py-3 text-sm ${
+                        formStatus.isSuccess
+                          ? "text-accent"
+                          : formStatus.isError
+                          ? "text-red-400"
+                          : "text-white/60"
+                      }`}
+                    >
                       {formStatus.isSuccess ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
                       {formStatus.message}
                     </div>
                   )}
-                  
-                  <Button 
-                    type="submit" 
+
+                  <button
+                    type="submit"
                     disabled={formStatus.isSubmitting}
-                    className={formStatus.isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}
+                    className={`group inline-flex items-center gap-3 bg-accent text-black px-8 py-4 text-sm font-bold tracking-wider uppercase hover:bg-white transition-all duration-300 mt-4 ${
+                      formStatus.isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                   >
-                    {formStatus.isSubmitting ? 'Sending...' : 'Send'} 
-                    <ArrowRight size={16} />
-                  </Button>
+                    {formStatus.isSubmitting ? "Sending..." : "Send"}
+                    <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                  </button>
                 </form>
               </div>
-              <div>
-                <div className="mb-2 text-white/90 font-medium">Direct</div>
-                <div className="space-y-2 text-white/80">
-                  <a className="flex items-center gap-2 hover:text-white" href="mailto:johannes.hurmerinta@mitrox.io"><Mail size={16} /> johannes.hurmerinta@mitrox.io</a>
-                  <a className="flex items-center gap-2 hover:text-white" href="https://github.com/DooMi42"><Github size={16} /> github.com/DooMi42</a>
-                  <a className="flex items-center gap-2 hover:text-white" href="https://linkedin.com/in/johanneshurmerinta"><Linkedin size={16} /> linkedin.com/in/johanneshurmerinta</a>
+            </Reveal>
+
+            {/* Direct */}
+            <Reveal delay={100}>
+              <div className="bg-black p-8 sm:p-10 lg:p-12 h-full flex flex-col">
+                <div className="text-xs font-bold tracking-[0.3em] uppercase text-accent mb-6">
+                  Direct
                 </div>
-                <div className="mt-6">
-                  <div className="text-white/90 font-medium mb-2">Download</div>
-                  <Button variant="outline" href="/cv.pdf" download="Johannes_Hurmerinta_CV.pdf"><Download size={16} /> CV (PDF)</Button>
+                <div className="space-y-5 flex-1">
+                  <a
+                    className="flex items-center gap-3 text-white/40 hover:text-white transition-colors duration-300 text-sm sm:text-base"
+                    href="mailto:johannes.hurmerinta@mitrox.io"
+                  >
+                    <Mail size={18} className="shrink-0" />
+                    johannes.hurmerinta@mitrox.io
+                  </a>
+                  <a
+                    className="flex items-center gap-3 text-white/40 hover:text-white transition-colors duration-300 text-sm sm:text-base"
+                    href="https://github.com/DooMi42"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <Github size={18} className="shrink-0" />
+                    github.com/DooMi42
+                  </a>
+                  <a
+                    className="flex items-center gap-3 text-white/40 hover:text-white transition-colors duration-300 text-sm sm:text-base"
+                    href="https://linkedin.com/in/johanneshurmerinta"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <Linkedin size={18} className="shrink-0" />
+                    linkedin.com/in/johanneshurmerinta
+                  </a>
+                </div>
+
+                <div className="mt-10 pt-8 border-t border-white/[0.06]">
+                  <div className="text-xs font-bold tracking-[0.3em] uppercase text-white/25 mb-4">
+                    Download
+                  </div>
+                  <a
+                    href="/cv.pdf"
+                    download="Johannes_Hurmerinta_CV.pdf"
+                    className="inline-flex items-center gap-3 border border-white/15 px-6 py-3 text-sm font-bold tracking-wider uppercase text-white/50 hover:text-white hover:border-white/40 transition-all duration-300"
+                  >
+                    <Download size={16} /> CV (PDF)
+                  </a>
                 </div>
               </div>
-            </div>
-          </Card>
-        </Container>
-      </section>
-
+            </Reveal>
+          </div>
+        </Section>
       </main>
 
-      <footer className="border-t border-white/10 py-10" role="contentinfo">
-        <Container className="flex flex-col items-center justify-between gap-4 md:flex-row">
-          <div className="text-sm text-white/60">© {new Date().getFullYear()} Johannes Hurmerinta</div>
-          <div className="flex items-center gap-3 text-sm text-white/70">
-            <a className="hover:text-white" href="/imprint.html">Imprint</a>
-            <span className="opacity-40">•</span>
-            <a className="hover:text-white" href="/privacy.html">Privacy</a>
+      {/* ── FOOTER ─────────────────────────────────────── */}
+      <footer className="border-t border-white/[0.06] py-12" role="contentinfo">
+        <div className="mx-auto max-w-[1400px] px-6 md:px-12 flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="text-xs tracking-[0.15em] uppercase text-white/25">
+            © {new Date().getFullYear()} Johannes Hurmerinta
           </div>
-        </Container>
+          <div className="flex items-center gap-6 text-xs tracking-[0.15em] uppercase text-white/25">
+            <a className="hover:text-white/50 transition-colors" href="/imprint.html">
+              Imprint
+            </a>
+            <a className="hover:text-white/50 transition-colors" href="/privacy.html">
+              Privacy
+            </a>
+          </div>
+          <div className="flex items-center gap-5">
+            <a href="https://github.com/DooMi42" target="_blank" rel="noreferrer" className="text-white/20 hover:text-white/50 transition-colors">
+              <Github size={16} />
+            </a>
+            <a href="https://www.linkedin.com/in/johanneshurmerinta/" target="_blank" rel="noreferrer" className="text-white/20 hover:text-white/50 transition-colors">
+              <Linkedin size={16} />
+            </a>
+            <a href="mailto:johannes.hurmerinta@mitrox.io" className="text-white/20 hover:text-white/50 transition-colors">
+              <Mail size={16} />
+            </a>
+          </div>
+        </div>
       </footer>
     </div>
   );
